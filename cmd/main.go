@@ -3,8 +3,9 @@ package main
 import (
 	"demo/internal/api"
 	"demo/internal/configs"
+	"demo/internal/mappers"
 	"demo/internal/repositories"
-	"demo/internal/services/links"
+	"demo/internal/services"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -28,14 +29,27 @@ func main() {
 	}))
 
 	linkRepo := repositories.NewLinkRepository(db)
-	linkService := links.NewLinkService(linkRepo)
+	linkService := services.NewLinkService(linkRepo)
 	linkAPI := api.NewLinkHandler(linkService)
+
+	userRepo := repositories.NewUserRepository(db)
+	userMapper := mappers.NewUserMapper()
+	userService := services.NewUserService(userRepo, userMapper)
+	userAPI := api.NewUsersHandler(userService)
 
 	linkGroup := router.Group("/links")
 	{
 		linkGroup.GET("", linkAPI.GetAll)
 		linkGroup.POST("/add", linkAPI.CreateLink)
 		linkGroup.GET("/:id", linkAPI.GetByID)
+	}
+
+	userGroup := router.Group("/users")
+	{
+		userGroup.GET("", userAPI.GetAll)
+		userGroup.POST("/add", userAPI.CreateNewUser)
+		userGroup.GET("/:id", userAPI.GetByID)
+		userGroup.PUT("/:id", userAPI.UpdateUser)
 	}
 
 	router.GET("/:code", linkAPI.GetByCode)

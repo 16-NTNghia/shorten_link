@@ -2,8 +2,8 @@ package api
 
 import (
 	"demo/dto/responses"
+	"demo/internal/interfaces"
 	"demo/internal/models"
-	"demo/internal/services/links"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,10 +11,10 @@ import (
 )
 
 type LinksHandler struct {
-	service *links.LinkService
+	service interfaces.LinkService
 }
 
-func NewLinkHandler(s *links.LinkService) *LinksHandler {
+func NewLinkHandler(s interfaces.LinkService) *LinksHandler {
 	return &LinksHandler{
 		service: s,
 	}
@@ -23,11 +23,11 @@ func NewLinkHandler(s *links.LinkService) *LinksHandler {
 func (lh *LinksHandler) GetAll(c *gin.Context) {
 	links, err := lh.service.GetAll()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, responses.ErrorResponse[[]*models.Link](err))
+		c.IndentedJSON(http.StatusBadRequest, responses.ErrorResponse[[]*models.Link](err))
 		return
 	}
 
-	c.JSON(http.StatusOK, responses.SuccessResponse(links))
+	c.IndentedJSON(http.StatusOK, responses.SuccessResponse(links))
 }
 
 func (lh *LinksHandler) GetByID(c *gin.Context) {
@@ -35,11 +35,11 @@ func (lh *LinksHandler) GetByID(c *gin.Context) {
 
 	link, err := lh.service.GetByID(uuid.MustParse(id))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, responses.ErrorResponse[*models.Link](err))
+		c.IndentedJSON(http.StatusBadRequest, responses.ErrorResponse[*models.Link](err))
 		return
 	}
 
-	c.JSON(http.StatusOK, responses.SuccessResponse(link))
+	c.IndentedJSON(http.StatusOK, responses.SuccessResponse(link))
 }
 
 func (lh *LinksHandler) GetByCode(c *gin.Context) {
@@ -47,7 +47,7 @@ func (lh *LinksHandler) GetByCode(c *gin.Context) {
 
 	link, err := lh.service.GetByCode(code)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, responses.ErrorResponse[*models.Link](err))
+		c.IndentedJSON(http.StatusBadRequest, responses.ErrorResponse[*models.Link](err))
 		return
 	}
 
@@ -57,15 +57,15 @@ func (lh *LinksHandler) GetByCode(c *gin.Context) {
 func (lh *LinksHandler) CreateLink(c *gin.Context) {
 	var newLink models.Link
 	if err := c.BindJSON(&newLink); err != nil {
-		c.JSON(http.StatusBadRequest, responses.ErrorResponse[*models.Link](err))
+		c.IndentedJSON(http.StatusBadRequest, responses.ErrorResponse[*models.Link](err))
 		return
 	}
 
 	link, err := lh.service.CreateNewLink(newLink.Url)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, responses.ErrorResponse[*models.Link](err))
+		c.IndentedJSON(http.StatusBadRequest, responses.ErrorResponse[*models.Link](err))
 		return
 	}
 
-	c.JSON(http.StatusOK, responses.SuccessResponse(link))
+	c.IndentedJSON(http.StatusOK, responses.SuccessResponse(link))
 }

@@ -1,6 +1,7 @@
-package links
+package services
 
 import (
+	"demo/internal/interfaces"
 	"demo/internal/models"
 	"fmt"
 	"net/url"
@@ -10,10 +11,10 @@ import (
 )
 
 type LinkService struct {
-	repo Repository
+	repo interfaces.LinkRepository
 }
 
-func NewLinkService(r Repository) *LinkService {
+func NewLinkService(r interfaces.LinkRepository) *LinkService {
 	return &LinkService{
 		repo: r,
 	}
