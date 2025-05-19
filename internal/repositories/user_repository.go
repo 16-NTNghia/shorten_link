@@ -94,6 +94,42 @@ func (ur *UserRepository) FindByID(id uuid.UUID) (*models.User, error) {
 	return GetUser(id, ur.db)
 }
 
+func (ur *UserRepository) FindByUsername(username string) (*models.User, error) {
+	stmt, err := ur.db.Prepare(`
+		SELECT id FROM users WHERE username = ?
+	`)
+
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := stmt.Query(username)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var id uuid.UUID
+	if rows.Next() {
+		err = rows.Scan(&id)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, nil
+	}
+
+	var user *models.User
+
+	user, err = GetUser(id, ur.db)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (ur *UserRepository) Exists(id uuid.UUID) (bool, error) {
 	stmt, err := ur.db.Prepare(`
 		SELECT id FROM users WHERE id = ?
@@ -172,4 +208,25 @@ func (ur *UserRepository) Save(e *models.User) (*models.User, error) {
 	defer stmt.Close()
 
 	return e, nil
+}
+
+func (ur *UserRepository) ExistEmail(email string) (bool, error) {
+	stmt, err := ur.db.Prepare(`
+		SELECT * FROM users WHERE email = ?
+	`)
+
+	if err != nil {
+		return false, err
+	}
+
+	rows, err := stmt.Query(email)
+
+	if err != nil {
+		return false, err
+	}
+
+	defer stmt.Close()
+	defer rows.Close()
+
+	return rows.Next(), nil
 }

@@ -13,6 +13,8 @@ type UserRepository interface {
 	FindByID(id uuid.UUID) (*models.User, error)
 	Exists(id uuid.UUID) (bool, error)
 	Save(e *models.User) (*models.User, error)
+	FindByUsername(username string) (*models.User, error)
+	ExistEmail(email string) (bool, error)
 }
 
 type UserService interface {

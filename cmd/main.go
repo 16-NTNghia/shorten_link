@@ -37,6 +37,9 @@ func main() {
 	userService := services.NewUserService(userRepo, userMapper)
 	userAPI := api.NewUsersHandler(userService)
 
+	authService := services.NewAuthService(userRepo)
+	authAPI := api.NewAuthHandler(authService)
+
 	linkGroup := router.Group("/links")
 	{
 		linkGroup.GET("", linkAPI.GetAll)
@@ -50,6 +53,13 @@ func main() {
 		userGroup.POST("/add", userAPI.CreateNewUser)
 		userGroup.GET("/:id", userAPI.GetByID)
 		userGroup.PUT("/:id", userAPI.UpdateUser)
+	}
+
+	authGroup := router.Group("/auth")
+	{
+		authGroup.POST("/login", authAPI.Login)
+		authGroup.POST("/refresh", authAPI.RefreshToken)
+		authGroup.POST("/register", authAPI.Register)
 	}
 
 	router.GET("/:code", linkAPI.GetByCode)
